@@ -1,0 +1,80 @@
+0:1:33,476|0:1:33,742|0:1:38,041
+
+/*
+ 
+function doPost(e) {
+  const lineOffset=5;
+  const str ="EFGHIJKLMNOPQRSTUVWXYZ";
+  if (e.postData.contents == undefined) return ContentService.createTextOutput("e empty");
+  Logger.log(e);
+
+  var content = e.postData.contents.split('&');
+   if (content == undefined) return ContentService.createTextOutput("content empty");
+  Logger.log(content);
+  var values = [];
+   var size= content.length;
+  for(let i = 0; i< size; i++)
+  { 
+  let str =content[i].split('=');
+  values.push(str);
+  }
+
+  //1 выложить IP адрес           //myIP=x
+  if (values[0][0]=="myIP") {
+    SpreadsheetApp.getActiveSpreadsheet().getRange("Info!B1").setValue(values[0][1]);
+  return ContentService.createTextOutput("Ip writed");
+  }
+  
+  //2 зарегать в таблицу лентяя   //newDriver=y&row=х
+    if (values[0][0]=="newDriver") {
+      var line= parseInt(values[2][1])+lineOffset; 
+      var pilot = "Results!B"+line;
+      var car = "Results!C"+line;
+    SpreadsheetApp.getActiveSpreadsheet().getRange(pilot).setValue(values[0][1]);
+     SpreadsheetApp.getActiveSpreadsheet().getRange(car).setValue(values[1][1]); 
+  return ContentService.createTextOutput(values[0][1]);
+  }
+
+  //3 получить(!) сколько кругов ехать  //getLaps
+   if (values[0][0]=="getLaps") {
+    
+  return ContentService.createTextOutput( SpreadsheetApp.getActiveSpreadsheet().getRange("Info!B2").getValue());
+   }
+
+  //4 записать результат заезда
+  const lapInSession = SpreadsheetApp.getActiveSpreadsheet().getRange("Info!B2").getValue();
+  var laps = values[2][1].split('|'); // '|'  
+  var line= parseInt(values[0][1])+lineOffset; // с нуля пусть будут строки  , а lineOffset это смещение шапки
+
+  var sessionOffset = parseInt(values[1][1])*(lapInSession+1);
+  for(let j = 0; j< laps.length ; j++)
+  {
+    let newRange = SpreadsheetApp.getActiveSpreadsheet().getRange(str[sessionOffset+j]+ (line).toString() );
+    newRange.setValue(laps[j]);
+  }
+  
+ var range = SpreadsheetApp.getActiveSpreadsheet().getRange(str[0]+line);
+  return ContentService.createTextOutput(laps );
+}
+
+// ------------------------------------------------------------- //
+// ------------------------ GET -------------------------------- //
+// ------------------------------------------------------------- //
+
+function doGet(e){
+ if (e == undefined) return ContentService.createTextOutput("e empty");
+
+ if (e.parameters.howLaps != undefined)   
+  return ContentService.createTextOutput( SpreadsheetApp.getActiveSpreadsheet().getRange("Info!B2").getValue());
+ 
+ 
+
+ 
+ var range = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('runners');
+ if (range != null) {
+  Logger.log(range.getValues());
+}
+ return ContentService.createTextOutput(range.getValues());  //
+}
+
+*/

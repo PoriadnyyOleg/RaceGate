@@ -1,0 +1,2 @@
+https://www.instructables.com/ST7920-128X64-LCD-Display-to-ESP32/
+http://wiki.amperka.ru/products:display-lcd-graphic-128x64
