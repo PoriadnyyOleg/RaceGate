@@ -9,6 +9,12 @@
 #ifndef WiFi_h
 #include <WiFi.h>
 #endif
+#ifndef esp_task_wdt_h
+#include <esp_task_wdt.h>
+#endif
+
+
+
 
 #ifndef LinkedList_h 
 #include "List.h"
@@ -83,7 +89,9 @@ String get_google(String path)
 
   if (httpCode == HTTP_CODE_FOUND)
   {
-        Serial.println("GET redirect");
+        Serial.println("GET redirect res");
+      //rtc_wdt_feed();
+      esp_task_wdt_reset();
     payload = get_google(location);
   }
 
@@ -126,11 +134,14 @@ String post_google(String path, String body)
   // httpCode will be negative on error
   if (httpCode > 0)
   {
+    payload = "";
     // HTTP header has been send and Server response header has been handled
     Serial.printf("[HTTP] POST... code: %d\n", httpCode);
     // file found at server
     if ((httpCode == HTTP_CODE_OK) || (httpCode == HTTP_CODE_FOUND))
     {
+         // rtc_wdt_feed();
+          esp_task_wdt_reset();
       payload = http.getString();
       Serial.println(payload);
     } else {
@@ -146,7 +157,8 @@ String post_google(String path, String body)
   else
   {
     Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-    payload = "";
+        //rtc_wdt_feed();
+        esp_task_wdt_reset();
      postString _poststring;
         _poststring.body=body;
       _poststring.path=path;
@@ -157,20 +169,21 @@ String post_google(String path, String body)
   }
 
   http.end();
-
+/*
   if (httpCode == HTTP_CODE_FOUND)
   {
      Serial.println("NO POST to get redirect");
-  //  payload = get_google(location);
+    payload = get_google(location);
   }
-
+*/
   return payload;
 };
 
 
 void googleloop() {
   if ((listPost.getSize()>0) ){
-    
+     //rtc_wdt_feed();
+     esp_task_wdt_reset();
   postString _poststring =    listPost.pop();
       postResult= post_google(_poststring.path, _poststring.body);
   }

@@ -1,10 +1,14 @@
 #define WDT_TIMEOUT 30
 #include <esp_task_wdt.h>
+//#include <rtc_wdt.h>
+
 void setup() {
   Serial.begin(115200);
+//rtc_wdt_protect_off();
+//rtc_wdt_disable();
 
-  esp_task_wdt_init(WDT_TIMEOUT, true); //enable panic so ESP32 restarts
-  esp_task_wdt_add(NULL); //add current thread to WDT watch
+ // disableCore0WDT();
+ // disableCore1WDT();
 
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(svetofor.leds, LED_NUM).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(bright);
@@ -12,7 +16,12 @@ void setup() {
 
 /*
 onlineMode
+switchModePin
 */
+ pinMode(switchModePin, INPUT);
+ onlineMode = digitalRead(switchModePin);
+
+
 
 if (onlineMode)  { 
    Serial.println("onlineMode");
@@ -23,8 +32,12 @@ if (onlineMode)  {
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println("WiFi Failed!");
     modeWiFi.error(); // яростно моргать лампой
+       WiFi.disconnect();
+    WiFi.reconnect();
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
    // return;
-  } else {
+   } else {
   Serial.println();
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
@@ -55,7 +68,7 @@ if (onlineMode)  {
   // Send web page with input fields to client
   
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){          // базовый экран 
-   request->send_P(200, "text/html",index_html, processor); 
+   request->send(200, "text/html",index_html, processor); 
   });
 
   server.on("/runRabbit", HTTP_GET, [](AsyncWebServerRequest *request){ // нажата кнопка Начала заезда
@@ -78,6 +91,7 @@ if (onlineMode)  {
   server.on("/registertable", HTTP_GET, [](AsyncWebServerRequest *request){
   
     DEBUG_PRINT("Открыта страница регистрации");
+    if (onlineMode)  { 
     if (finLap==0) {
        // if (webTable.getRaceType()==0) {
         finLap=webTable.getFinishLap();
@@ -89,7 +103,8 @@ if (onlineMode)  {
         }*/
 
     }    
-    request->send_P(200, "text/html",register_html, processor3); 
+    }
+    request->send(200, "text/html",register_html, processor3); 
   });
 
 
@@ -103,7 +118,7 @@ if (onlineMode)  {
           String laps = nowRunner->getLaps();
           sessionResult=nowRunner->getSessionResult();
           if (onlineMode) webTable.addSendList(sessionResult); 
-          writeMessage(SD, dirPath.c_str(), nameDriverRun, laps  );
+         // writeMessage(SD, dirPath.c_str(), nameDriverRun, laps  );
           nameDriverRun="";
           nowRunner=NULL;
         };
@@ -118,7 +133,7 @@ if (onlineMode)  {
       laps = "еще нет результатов"; 
     };
     DEBUG_PRINT(laps);
-    request->send_P(200, "text/html",result_html, processor2); 
+    request->send(200, "text/html",result_html, processor2); 
   });
 
   server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request){         //преждевременная остановка заезда. результаты тоже запишем 
@@ -144,7 +159,7 @@ if (onlineMode)  {
       inputParam = LAP_INPUT;
       DEBUG_PRINT(finLap);
     }
-      request->send_P(200, "text/html",register_html, processor3); 
+      request->send(200, "text/html",register_html, processor3); 
   });
 
   server.on("/setBright", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -156,7 +171,7 @@ if (onlineMode)  {
       }
       DEBUG_PRINT(bright);
     }
-      request->send_P(200, "text/html",register_html, processor3); 
+      request->send(200, "text/html",register_html, processor3); 
   });
 
 
@@ -175,7 +190,8 @@ server.on("/set", HTTP_GET, [] (AsyncWebServerRequest *request) {
       DEBUG_PRINT(car);
     }
     //&
-    tableDrivers[numberDrivers]= webTable.manualReg(name, car, finLap);
+    
+     tableDrivers[numberDrivers]= webTable.manualReg(name, car, finLap, onlineMode );
     DEBUG_PRINT("Зарегистрирован");
        numberDrivers++;
       request->redirect("/registertable");
@@ -190,8 +206,7 @@ server.on("/set", HTTP_GET, [] (AsyncWebServerRequest *request) {
 server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
     String inputParam;
     //get finLap from Table
-    if (onlineMode){
-      webTable.setFinishLap(finLap);  
+    if (onlineMode) { webTable.setFinishLap(finLap);  
 
      //DEBUG_PRINT(vTaskList());
     if (finLap!=0){
@@ -201,12 +216,12 @@ server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
     DEBUG_PRINT(tableDrivers[numberDrivers]->nameDriver);
        numberDrivers++;
     }
-    } else request->send(418, "text/plain", "Недоступно без доступа в интернет");
+    } else request->send(418, "text/plain", "OK");
     
    //  DEBUG_PRINT(vTaskList());
       request->redirect("/registertable");
     } else {
-      request->send(418, "text/plain", "Please SET LAPS");
+      request->send(418, "text/plain", "OFFLINE MODE - use manual input Drivers");
     }
 
     });
@@ -214,6 +229,7 @@ server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
 
   server.onNotFound(notFound);
   server.begin();
+  /*
   if (useSDcard){
    if (!SD.begin()) {
     Serial.println("Card Mount Failed");
@@ -244,10 +260,14 @@ server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
     1,           /* priority of the task *
     &Task0,      /* Task handle to keep track of created task *
     0);          /* pin task to core 0 */
-  }
-    
+//}
+   
+  
+ 
+    DEBUG_PRINT("endSetup");
 }
 
+/*
 void TaskCode0( void * pvParameters ) {
   while (1)
   {
@@ -255,3 +275,4 @@ void TaskCode0( void * pvParameters ) {
     vTaskDelay(100);
   }
 }
+*/

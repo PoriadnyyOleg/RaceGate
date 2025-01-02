@@ -2,17 +2,28 @@
 void loop() {
 
  //ArduinoOTA.handle();
-  esp_task_wdt_reset();
+//rtc_wdt_feed();
+//esp_task_wdt_reset();
   if (onlineMode){
     unsigned long currentMillis = millis();
   // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
-   if ( (WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=10000)){
+   if ( (WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=5000)){
     Serial.println("Reconnecting to WiFi...");
+    svetofor.wifiError();
     WiFi.disconnect();
     WiFi.reconnect();
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
     previousMillis = currentMillis;
+     
+   } else {
+    //DEBUG_PRINT("WL_CONNECTED or timer test reconnect");
+       if (WiFi.status() == WL_CONNECTED) {
+          svetofor.setLastState();
+      //    Serial.print("IP Address: ");
+      //    Serial.println(WiFi.localIP());
+       }
+       
    }; 
 
    if ((WiFi.status() == WL_CONNECTED)&& (currentMillis - previousMillis >=10000)){
@@ -51,7 +62,7 @@ void loop() {
           String laps = nowRunner->getLaps();
           sessionResult=nowRunner->getSessionResult();
           if (onlineMode) webTable.addSendList(sessionResult); 
-          if (useSDcard) writeMessage(SD, dirPath.c_str(), nameDriverRun, laps  );
+          //if (useSDcard) writeMessage(SD, dirPath.c_str(), nameDriverRun, laps  );
           nameDriverRun="";
           nowRunner=NULL;
          gate.attach(NULL);

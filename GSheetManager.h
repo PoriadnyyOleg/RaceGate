@@ -114,14 +114,14 @@ public:
       return runners.shift();
   };
 
-  RoadRunner* manualReg(String& name, String& car, int finLap){
+  RoadRunner* manualReg(String& name, String& car, int finLap, int mode){
         String str = "newDriver=";
         str+=name;
         str+="&car=";
         str+=car;
         str+="&row=";
         str+=row;  // 
-        str += post_google(GOOGLE_URL,str);
+      if (mode)  str += post_google(GOOGLE_URL,str); //без интернета надо просто создать бегуна
         DEBUG_PRINT(str);
         String nameDriverCar = name+" "+car;
       return new RoadRunner(nameDriverCar, finLap, row++);

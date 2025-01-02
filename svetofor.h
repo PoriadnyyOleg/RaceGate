@@ -21,7 +21,24 @@
 49	50	51	52	53	54	55	56	57	58	59	60	61	62	63	64
 .....
 */
-
+const bool DIGIT_X[] PROGMEM ={
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,
+1,0,1,1,1,0,0,0,0,0,0,1,1,1,0,1,
+1,0,0,1,1,1,0,0,0,0,1,1,1,0,0,1,
+1,0,0,0,1,1,1,0,0,1,1,1,0,0,0,1,
+1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,
+1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,
+1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,
+1,0,0,0,1,1,1,0,0,1,1,1,0,0,0,1,
+1,0,0,1,1,1,0,0,0,0,1,1,1,0,0,1,
+1,0,1,1,1,0,0,0,0,0,0,1,1,1,0,1,
+1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,
+1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+};
 
 const bool DIGIT_9[] PROGMEM ={
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -225,13 +242,19 @@ const bool DIGIT_0[] PROGMEM ={
 #define COLOR_RED CRGB(255,0,0)
 #define COLOR_WHITE CRGB(255,255,255)
 const int startTime=5;
-
+const int lapGigit=10;
+const int stateRedFlag=11;
+const int stateGreenFlag=12;
+const int stateYellowFlag=13;
+const int stateFinishFlag=14;
 
 class Svetofor{  // управление адресной лентой? 
 private: 
     bool counting;
+    bool haswifiError;
     int counter;
     int lastMilis; 
+    int lastState;
     void fillLEDColors( uint8_t red,uint8_t green, uint8_t blue ){ 
     for( int i = 0; i < LED_NUM; ++i) {
         leds[i] = CRGB(red,green,blue );
@@ -259,6 +282,7 @@ private:
      }; 
      void nextDigit(int count, CRGB   color){   
          // Serial.println(counter);
+        if (lastState<lapGigit)  lastState=count;
             switch (count){
               case 0: 
               drawDigit(DIGIT_0,color);
@@ -290,6 +314,9 @@ private:
               case 9: 
               drawDigit(DIGIT_9,color);
                 break;
+              case 10: 
+              drawDigit(DIGIT_X,color);
+                break;  
             };
         
     }; 
@@ -305,6 +332,35 @@ public:
       //stopRace();
     };
 
+    void wifiError(){    //красный крест
+     haswifiError=true;
+            nextDigit(10, CRGB::Red);  //fill RED 
+            FastLED.show();
+            //DEBUG_PRINT("showRED");
+           //  FastLED.delay(1000 / UPDATES_PER_SECOND);
+            Serial.println("WiFi Error!");
+    };  //стоим, ждем следующий заезд
+
+    void setLastState(){
+
+        if  (haswifiError) {
+          DEBUG_PRINT("setiing Last state");
+          DEBUG_PRINT(lastState);
+        if (lastState<lapGigit){
+            nextDigit(lastState, CRGB::Green);  //на обратном отсчете потерю WiFi не успеем поймать?
+           
+        } else {
+          if (lastState==stateRedFlag)  fillLEDColors(255,0,0 );  //fill RED 
+           if (lastState==stateGreenFlag)  fillLEDColors(0,255,0 );  //fill RED 
+           if (lastState==stateYellowFlag)  fillLEDColors(255,255,0 );  //fill RED 
+           if (lastState==stateFinishFlag)  drawDigit(DIGIT_FINISH,CRGB::White);  //fill RED 
+        }
+        FastLED.show(); 
+        haswifiError=false;
+        }
+    };
+
+
     void stopRace(){    //красный флаг
      //  if (adressLogic){
             fillLEDColors(255,0,0 );  //fill RED 
@@ -312,6 +368,7 @@ public:
             //DEBUG_PRINT("showRED");
            //  FastLED.delay(1000 / UPDATES_PER_SECOND);
             Serial.println("Красный ФЛАГ!");
+            lastState=stateRedFlag;
     };  //стоим, ждем следующий заезд
 
     void startRace(){  // начать отсчет
@@ -330,6 +387,7 @@ public:
                 fillLEDColors(0,255,0 );  //fill GREEN 
                 counting=false;
                 Serial.println("RUNRUNRUN!!!!!!! ");
+                lastState=stateGreenFlag;
             };
             counter--;
           };
@@ -347,6 +405,7 @@ public:
          // DEBUG_PRINT("showKLET");
          //  FastLED.delay(1000 / UPDATES_PER_SECOND);
           Serial.println("Клетчатый ФЛАГ!");
+          lastState=stateFinishFlag;
     };    //финиш
 
     void setWarning(){
@@ -355,6 +414,7 @@ public:
        //  FastLED.delay(1000 / UPDATES_PER_SECOND);
         Serial.println("Желтый ФЛАГ!");
        // DEBUG_PRINT("showYELLOW");
+       lastState=stateYellowFlag;
     };   //желтый флаг
 
 };

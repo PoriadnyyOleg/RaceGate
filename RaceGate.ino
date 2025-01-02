@@ -29,8 +29,9 @@ POST: row=0&session=0&laps= 1:32.476 | 1:33.742 | 1:38.039
   #include <ESP8266WiFi.h>
   #include <ESPAsyncTCP.h>
 #endif
-#include <ESPAsyncWebServer.h>
 
+#include <ESPAsyncWebServer.h>
+#define CONFIG_ASYNC_TCP_USE_WDT 0
 
 #define DEBUG
 #ifdef DEBUG
@@ -39,13 +40,13 @@ POST: row=0&session=0&laps= 1:32.476 | 1:33.742 | 1:38.039
 #define DEBUG_PRINT(x)
 #endif
 
-#include "FileSaveResult.h"
+//#include "FileSaveResult.h"
 #include "RoadRunner.h"
 #include "svetofor.h"
 #include "WiFimodeLight.h"
 #include  "GSheetManager.h"
 
-TaskHandle_t Task0;
+//TaskHandle_t Task0;
 
 WiFimodeLight modeWiFi(33); //для индикации режима WiFi
 bool onlineMode=true; 
@@ -83,15 +84,15 @@ String formattedDate;
 int month, year, day;
 char uptime[100];
 */
-String dirPath = "/LapResults/";
-SPIClass * hspi = NULL;
-File myFile;
+//String dirPath = "/LapResults/";
+//SPIClass * hspi = NULL;
+//File myFile;
 
 
 AsyncWebServer server(80);
 uint8_t slalomGatePin = 35;
 uint8_t gatePin = 25;
-
+const int switchModePin = 34 ;  
 
 
 bool isSlalom=false;
