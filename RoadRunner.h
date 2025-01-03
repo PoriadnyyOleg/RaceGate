@@ -1,7 +1,7 @@
 #ifndef RoadRunner_h
 #define RoadRunner_h
 
-#define CHILLOUT 5000
+#define CHILLOUT 1000
 
 #ifdef DEBUG
 #define DEBUG_PRINT(x) Serial.println(x)
@@ -138,6 +138,9 @@ String getLaps(){
   result+=" \n";
   DEBUG_PRINT("size of session");
    DEBUG_PRINT(sessions[numSession].getSize());
+   if (sessions[numSession].getSize()<1) {
+    result+= "Нет результатов";
+   } else {
    if (sessions[numSession][0]==0) {
       result+= "Фальстарт "; 
       result+=" \n";
@@ -173,7 +176,7 @@ String getLaps(){
   };
   };
   };
-  
+  };
   DEBUG_PRINT(result);
   return result;
 };

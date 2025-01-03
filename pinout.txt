@@ -1,11 +1,12 @@
 
-SD card - NodeMCU32S 
-3.3	- L19
-Gnd 	- R19
-CS	- R10	P5
-CLK	- R11	P18
-DO	- R12	P19
-DI	- R18	P23
+//выпилено
+//SD card - NodeMCU32S 
+//3.3	- L19
+//Gnd 	- R19
+//CS	- R10	P5
+//CLK	- R11	P18
+//DO	- R12	P19
+//DI	- R18	P23
 
 ----------------
 gate
@@ -14,5 +15,10 @@ gate
 резистор 1.2кќм L11 - GND
 
 ----------------
-svetofor
+svetofor потребление 5v ?a
 через транзистор на L10     P26
+
+
+slalomGatePin  P35
+
+switchModePin P34   

@@ -72,7 +72,7 @@ if (onlineMode)  {
   });
 
   server.on("/runRabbit", HTTP_GET, [](AsyncWebServerRequest *request){ // нажата кнопка Начала заезда
-    if (nowWaiter){
+    if (!nowRunner) if (nowWaiter){
     nowRunner=nowWaiter;
     gate.attach(nowRunner);
     if (isSlalom){
