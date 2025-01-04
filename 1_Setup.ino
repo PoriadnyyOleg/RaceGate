@@ -56,7 +56,7 @@ if (onlineMode)  {
   }
 } else {
     Serial.println("OFFLine Mode");
-  WiFi.softAP(ssid, password);
+  WiFi.softAP(offlineAPid, password);
   IPAddress IP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
   Serial.println(IP);

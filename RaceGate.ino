@@ -64,7 +64,7 @@ const char* password = "20111760";
 const char* ssid = "Gate";
 const char* password = "12345678";
 */
-
+const char* offlineAPid = "OfflineGatePoint";
 const char* ssid = "GatePoint";
 const char* password = "12345679";
 
