@@ -14,6 +14,9 @@ void setup() {
   FastLED.setBrightness(bright);
 
 
+
+
+
 /*
 onlineMode
 switchModePin
@@ -261,7 +264,9 @@ server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
     &Task0,      /* Task handle to keep track of created task *
     0);          /* pin task to core 0 */
 //}
-   
+   //preferences.begin("RaceGate", false); 
+
+
   
  
     DEBUG_PRINT("endSetup");

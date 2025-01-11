@@ -40,6 +40,7 @@ POST: row=0&session=0&laps= 1:32.476 | 1:33.742 | 1:38.039
 #define DEBUG_PRINT(x)
 #endif
 
+#include <Preferences.h>
 //#include "FileSaveResult.h"
 #include "RoadRunner.h"
 #include "svetofor.h"
@@ -321,7 +322,7 @@ text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}
 <br>
 <p>Яркость 0..255 : %TEMPLATE_BRIGHT%</p>
    <form action="/setBright">
-    Кругов: <input type="text" name="bright">
+     <input type="text" name="bright">
     <input type="submit" value="Задать">
   </form>
 </body></html>)rawliteral";

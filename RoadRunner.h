@@ -139,7 +139,7 @@ String getLaps(){
   DEBUG_PRINT("size of session");
    DEBUG_PRINT(sessions[numSession].getSize());
    if (sessions[numSession].getSize()<1) {
-    result+= "Нет результатов";
+    result+= "Нет результатов \n";
    } else {
    if (sessions[numSession][0]==0) {
       result+= "Фальстарт "; 
