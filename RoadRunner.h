@@ -50,9 +50,9 @@ public:
     this->finishLap=finishLap;
     this->row=row;
     thisLap=typeLap::toStart;
-
 };
 
+  
 
 
   void startSession(){

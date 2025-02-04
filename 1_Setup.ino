@@ -1,6 +1,7 @@
 #define WDT_TIMEOUT 30
 #include <esp_task_wdt.h>
 //#include <rtc_wdt.h>
+#include <Preferences.h>
 
 void setup() {
   Serial.begin(115200);
@@ -264,7 +265,7 @@ server.on("/regFromTable", HTTP_GET, [] (AsyncWebServerRequest *request) {
     &Task0,      /* Task handle to keep track of created task *
     0);          /* pin task to core 0 */
 //}
-   //preferences.begin("RaceGate", false); 
+  // preferences.begin("RaceGate", false); 
 
 
   
